@@ -3,6 +3,6 @@
   "description": "Google スプレッドシートを更新するだけでオリジナルの地図アプリを作成できる\n「Geolonia PWAマップ」",
   "form_url": "",
   "logo_image_url": "https://hankei6km.github.io/test-pwamap/icon-pwamap.svg",
-  "background_image_url": "https://hankei6km.github.io/test-pwamap/bgimage_pwamap_1920_1080.png",
+  "background_image_url": "https://hankei6km.github.io/test-pwamap/bgimage_pwamap_1920_1080.jpg",
   "primary_color": "#d2691e"
 }
