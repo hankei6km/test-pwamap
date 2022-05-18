@@ -4,10 +4,15 @@
 
 const fs = require("fs");
 const path = require("path")
+const util = require('util')
+const stream = require('stream')
 const fetch = require("node-fetch")
+const csv = require("csv-parse")
 
-const GOOGLE_SHEET_URL = process.env["GOOGLE_SHEET_URL"];
-const GOOGLE_SHEET_API_KEY = process.env["GOOGLE_SHEET_API_KEY"];
+const promisePipeline = util.promisify(stream.pipeline)
+
+const GOOGLE_SHEET_SPOT_URL = process.env["GOOGLE_SHEET_SPOT_URL"];
+const GOOGLE_SHEET_BASIC_URL = process.env["GOOGLE_SHEET_BASIC_URL"];
 
 const zen2han = (str) => {
   return str.replace(/[！-～]/g, function (s) {
@@ -62,28 +67,61 @@ const downloadLogo = async (logo_image_url) => {
 
 }
 
+const fetchCsv = async (sheet_url, numCols) => {
+  const cols = typeof numCols === "undefined" ? 10 : numCols
+  const u = new URL(sheet_url)
+  const spread_sheet_id = path.basename(path.dirname(u.pathname))
+  const sheet_id = u.hash.split("=")[1]
+
+  const export_base = new URL(
+    path.join("/", "spreadsheets", "d", spread_sheet_id, "export"),
+    "https://docs.google.com"
+  )
+  const export_query = new URLSearchParams({ format: "csv", gid: sheet_id })
+  const export_url = `${export_base.toString()}?${export_query.toString()}`
+
+  const parser = csv.parse({})
+  const records = []
+  parser.on("readable", function () {
+    let record
+    while ((record = parser.read()) !== null) {
+      record = record.slice(0, cols)
+      if (record.some((col) => col !== "")) {
+        for (let i = record.length - 1; i >= 0 && record[i] === ""; i--) {
+          record.pop()
+        }
+        records.push(record)
+      }
+    }
+  })
+
+  const res = await fetch(export_url)
+  await promisePipeline(res.body, parser)
+  return records
+}
+
 const fetchDataSetEnv = async () => {
 
   // 引数に Google Sheet API key が指定されてなければ終了。
-  if (!GOOGLE_SHEET_URL || !GOOGLE_SHEET_API_KEY) {
+  if (!GOOGLE_SHEET_SPOT_URL || !GOOGLE_SHEET_BASIC_URL) {
 
     process.stderr.write(
-      `引数に スプレッドシートの URL と API キーを指定して下さい。\n`
+      `環境変数 "GOOGLE_SHEET_SPOT_URL" と "GOOGLE_SHEET_BASIC_URL" を指定して下さい。\n`
     );
 
     process.exit(1);
   }
 
-  const GOOGLE_SHEET_ID = GOOGLE_SHEET_URL.replace('https://docs.google.com/spreadsheets/d/', '').replace('/edit?usp=sharing', '')
-
   const sheetList = [
     {
       name: "スポットデータ",
-      exportFilePath: "/public/data.json"
+      exportFilePath: "/public/data.json",
+      sheetUrl: GOOGLE_SHEET_SPOT_URL
     },
     {
       name: "基本データ",
-      exportFilePath: "/src/config.json"
+      exportFilePath: "/src/config.json",
+      sheetUrl: GOOGLE_SHEET_BASIC_URL
     },
   ]
 
@@ -93,13 +131,9 @@ const fetchDataSetEnv = async () => {
     const sheet = sheetList[i];
 
     try {
-      // スプレッドシートのデータをダウンロードする
-      const sheet_url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${sheet.name}!A1:J?key=${GOOGLE_SHEET_API_KEY}`
-      const res = await fetch(sheet_url);
-      config = await res.json();
-
-      // 空行を除外
-      config.values = config.values.filter((row) => row.some((col) => col !== ""));
+      config = {
+        values: await fetchCsv(sheet.sheetUrl)
+      }
 
       if (sheet.name === "基本データ") {
         // ヘッダーをキーとしたJSONに変換する
@@ -117,7 +151,7 @@ const fetchDataSetEnv = async () => {
 
       console.log(error)
       process.stderr.write(
-        `スプレッドシートのダウンロードに失敗しました。URLとAPIキー、閲覧権限が正しく設定されている事を確認して下さい。\n`
+        `スプレッドシートのダウンロードに失敗しました。URLと閲覧権限が正しく設定されている事を確認して下さい。\n`
       );
       process.exit(1);
     }
