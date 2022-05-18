@@ -10,9 +10,9 @@ on:
 
   workflow_dispatch:
 
-  schedule:
-    - cron:  '*/10 * * * *'
-    # 10分ごとに実行
+    #schedule:
+    #  - cron:  '*/10 * * * *'
+    #  # 10分ごとに実行
 
 jobs:
   ubuntu:
