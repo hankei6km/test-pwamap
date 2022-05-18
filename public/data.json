@@ -1,6 +1,4 @@
 {
-  "range": "'スポットデータ'!A1:J83",
-  "majorDimension": "ROWS",
   "values": [
     [
       "タイムスタンプ",
