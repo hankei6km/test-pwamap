@@ -1,5 +1,5 @@
 {
-  "range": "'スポットデータ'!A1:J84",
+  "range": "'スポットデータ'!A1:J83",
   "majorDimension": "ROWS",
   "values": [
     [
@@ -15,16 +15,24 @@
       "公式サイト"
     ],
     [
-      "2022/05/11 14:46:34",
-      "オフィス",
-      "https://geolonia.github.io/logo/geolonia-logo_b2.jpg",
-      "35.730091",
-      "139.73754",
-      "株式会社Geolonia",
-      "株式会社Geoloniaの東京オフィスです",
+      "2022/05/18 14:53:07",
+      "テスト",
+      "https://www.appsheet.com/template/gettablefileurl?appName=GeoloniaPWA%E3%83%9E%E3%83%83%E3%83%97%E3%83%87%E3%83%BC%E3%82%BF-test-4349155&tableName=%E3%82%B9%E3%83%9D%E3%83%83%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF&fileName=%E3%82%B9%E3%83%9D%E3%83%83%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF_Images%2F05-18-2022%2014-53-07.%E7%94%BB%E5%83%8F%E5%85%A5%E5%8A%9B.060900.jpg",
+      "35.673944",
+      "139.752558",
+      "テストの場所",
+      "テストの場所です",
       "",
-      "geoloniamap",
-      "https://geolonia.com"
+      "",
+      "https://google.com"
+    ],
+    [
+      "2022/05/18 15:28:52",
+      "テスト",
+      "",
+      "35.673944",
+      "139.752558",
+      "画像なし"
     ]
   ]
 }
