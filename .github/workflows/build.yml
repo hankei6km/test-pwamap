@@ -44,7 +44,7 @@ jobs:
 
     - name: Download data and set up environment variables
       run: |
-        node bin/download.js "${GOOGLE_SHEET_URL}" "${GOOGLE_SHEET_API_KEY}"
+        node bin/download.js
         node bin/config.js
 
     - name: Build PWA Assets

@@ -6,8 +6,8 @@ const fs = require("fs");
 const path = require("path")
 const fetch = require("node-fetch")
 
-const GOOGLE_SHEET_URL = process.argv[2]
-const GOOGLE_SHEET_API_KEY = process.argv[3]
+const GOOGLE_SHEET_URL = process.env["GOOGLE_SHEET_URL"];
+const GOOGLE_SHEET_API_KEY = process.env["GOOGLE_SHEET_API_KEY"];
 
 const zen2han = (str) => {
   return str.replace(/[！-～]/g, function (s) {
