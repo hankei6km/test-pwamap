@@ -98,6 +98,9 @@ const fetchDataSetEnv = async () => {
       const res = await fetch(sheet_url);
       config = await res.json();
 
+      // 空行を除外
+      config.values = config.values.filter((row) => row.some((col) => col !== ""));
+
       if (sheet.name === "基本データ") {
         // ヘッダーをキーとしたJSONに変換する
         config = table2json(config);
