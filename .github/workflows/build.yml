@@ -10,6 +10,10 @@ on:
 
   workflow_dispatch:
 
+  repository_dispatch:
+    types:
+      - sssapi-api-build-success   # 成功時
+
     #schedule:
     #  - cron:  '*/10 * * * *'
     #  # 10分ごとに実行
