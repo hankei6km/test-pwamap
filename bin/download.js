@@ -67,9 +67,18 @@ const downloadLogo = async (logo_image_url) => {
 
 }
 
-const fetchCsv = async (sheet_url, numCols) => {
+// 公開が TRUE のレコードのみにする
+const publishdColNo = 13
+const filterPublished = (records, idx) =>  records.filter((cols, idx) => {
+  if(idx === 0){
+    return true
+  }
+ return cols[publishdColNo] === "TRUE"
+})
+
+const fetchCsv = async (sheet, numCols) => {
   const cols = typeof numCols === "undefined" ? 10 : numCols
-  const u = new URL(sheet_url)
+  const u = new URL(sheet.sheetUrl)
   const spread_sheet_id = path.basename(path.dirname(u.pathname))
   const sheet_id = u.hash.split("=")[1]
 
@@ -81,15 +90,11 @@ const fetchCsv = async (sheet_url, numCols) => {
   const export_url = `${export_base.toString()}?${export_query.toString()}`
 
   const parser = csv.parse({})
-  const records = []
+  let records = []
   parser.on("readable", function () {
     let record
     while ((record = parser.read()) !== null) {
-      record = record.slice(0, cols)
       if (record.some((col) => col !== "")) {
-        for (let i = record.length - 1; i >= 0 && record[i] === ""; i--) {
-          record.pop()
-        }
         records.push(record)
       }
     }
@@ -97,6 +102,19 @@ const fetchCsv = async (sheet_url, numCols) => {
 
   const res = await fetch(export_url)
   await promisePipeline(res.body, parser)
+
+  if (sheet.name === "スポットデータ") {
+    //公開が TRUE のレコードのみにする
+    records = filterPublished(records)
+  }
+  // 列を絞り込む
+  records = records.map(record => {
+    record = record.slice(0, cols)
+    for (let i = record.length - 1; i >= 0 && record[i] === ""; i--) {
+      record.pop()
+    }
+    return record
+  })
   return records
 }
 
@@ -132,7 +150,7 @@ const fetchDataSetEnv = async () => {
 
     try {
       config = {
-        values: await fetchCsv(sheet.sheetUrl)
+        values: await fetchCsv(sheet)
       }
 
       if (sheet.name === "基本データ") {
