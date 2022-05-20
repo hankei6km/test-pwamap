@@ -17,6 +17,9 @@ on:
 jobs:
   ubuntu:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
     env:
       GOOGLE_SHEET_SPOT_URL: ${{ secrets.GOOGLE_SHEET_SPOT_URL }}
       GOOGLE_SHEET_BASIC_URL: ${{ secrets.GOOGLE_SHEET_BASIC_URL }}
